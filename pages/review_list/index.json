@@ -1,7 +1,7 @@
 {
     "navigationBarBackgroundColor": "#000000",
     "navigationBarTextStyle": "#fff",
-    "navigationBarTitleText": "审核",
+    "navigationBarTitleText": "审核列表",
     "backgroundColor": "#eeeeee",
     "enablePullDownRefresh": true
   }

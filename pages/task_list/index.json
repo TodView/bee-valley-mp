@@ -1,7 +1,7 @@
 {
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "青团任务列表",
+    "navigationBarTitleText": "任务列表",
     "backgroundColor": "#eeeeee",
     "enablePullDownRefresh": true,
     "backgroundTextStyle": "light",
