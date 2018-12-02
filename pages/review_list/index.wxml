@@ -1,10 +1,18 @@
-<view>
+<view style="border-top: 1px solid #f1f1f1;">
 
-    <view wx:for="{{taskTypes}}" wx:key="type">
+    <!-- <view wx:for="{{taskTypes}}" wx:key="type">
       <view class='{{index === 0 ? "btn1" : "btn" }}'>
         <button type="primary" size="default" bindtap="navToTask" data-tasktype="{{item.type}}">{{item.displayName}}</button>
       </view>
+    </view> -->
+
+    <view wx:for="{{taskTypes}}" wx:key="type">
+      <view class='wrap_item' bindtap="navToTask" data-tasktype="{{item.type}}">
+      <view class="showText">{{item.displayName}}</view>
+      <view class="showPrice">{{1}}元/张</view>
     </view>
+    
+  </view>
   
     <view class="message" wx:if="{{taskTypes && taskTypes.length === 0}}">
       <text>暂无任务。请联系客服获取更多任务。</text>

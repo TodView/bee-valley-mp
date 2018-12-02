@@ -1,10 +1,25 @@
-.btn1{
-    width: 75%;
+.wrap_item{
+    width: 90%;
     height: 100rpx;
-    margin: 200rpx auto 0;
+    display: flex;
+    margin: auto;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f1f1;
 }
-.btn{
-    width: 75%;
-    height: 100rpx;
-    margin: 50rpx auto 0;
+.wrap_item .showPrice{
+    font-size: 35rpx;
+    color: #e0384c;
+    font-family: 'PingFangSC';
+    font-weight: bold;
+}
+.wrap_item .showText{
+    color: #3C3C3C;
+    font-size: 35rpx;
+    font-family: 'PingFangSC';
+}
+.modalPosition{
+    position: fixed;
+    top: 25vw;
+    width: 100vw;
 }

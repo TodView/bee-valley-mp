@@ -90,6 +90,12 @@ Page({
     })
   },
 
+  intoReview: function () {
+    wx.navigateTo({
+      url: "../review_list/index"
+    })
+  },
+
   intoList: function () {
     wx.navigateTo({
       url: '../table/index'

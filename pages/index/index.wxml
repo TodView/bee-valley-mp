@@ -10,6 +10,9 @@
     <view class="showBtn1">
       <button type="primary" size="default" bindtap="intoChoose">任务列表</button>
     </view>
+     <view class="showBtn2">
+      <button type="primary" size="default" bindtap="intoReview">审核列表</button>
+    </view>
     <view class="showBtn2">
       <button type="primary" size="default" bindtap="intoList">我的任务记录</button>
     </view>
