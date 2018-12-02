@@ -143,7 +143,7 @@ Page({
   fetchWorks: function () {
     let that = this;
 
-    beevalley.fetchAuditWorks(this.apitoken, 'rect', 3, function (res) {
+    beevalley.fetchAuditWorks(this.apitoken, 'rect', 3, this.packageId, function (res) {
       that.handleError(res);
       let works = res.data;
       that.setData({
@@ -239,7 +239,7 @@ Page({
 
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     this.showLoading();
     this.apitoken = wx.getStorageSync('apitoken');
     let context = wx.createCanvasContext('rectAudit');
@@ -257,6 +257,7 @@ Page({
       });
       that.nextWork();
     })
+    this.packageId = options.packageId;
   },
 
   onUnload: function () {
