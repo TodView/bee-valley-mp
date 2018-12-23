@@ -2,7 +2,7 @@
 // const dayjs = require('./dayjs.min.js');
 const moment = require('./moment.min.js');
 
-const TODVIEW_API_BASE_URL = 'https://api-uat.todview.com/v1/';
+const TODVIEW_API_BASE_URL = 'https://api.todview.com/v1/';
 
 function fetchWorks(token, type, num, packageId, callback) {
   wx.request({
