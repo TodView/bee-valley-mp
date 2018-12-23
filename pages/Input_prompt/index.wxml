@@ -1,0 +1,28 @@
+<view class="inputPrompt">
+    <view class="wrap">
+        <view class="name">{{data.displayName}}：</view>
+        <input 
+            type="text" 
+            placeholder="请输入" 
+            class="input"
+            bindfocus="getFocus"
+            bindblur="getBlur"
+            bindinput="bindInput"
+            value="{{value}}"
+        />
+    </view>
+    <view 
+        class="prompt" 
+        style="display:{{isShow ? 'block' : 'none'}}"
+    >
+        <view class="prompt_item" 
+            wx:for="{{userData}}" 
+            wx:for-item="item"  
+            wx:key="index" 
+            wx:for-index="index"
+            bindtap="select"
+            data-select="{{item}}"
+            data-index="{{index}}"
+        >{{item.value}}</view>
+    </view>
+</view>

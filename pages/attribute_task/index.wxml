@@ -16,6 +16,7 @@
             bindtap="clickIcon" 
             color="#33CCFF"
         />
+        {{currentWork.description}}
     </view>
     <view class="doSomething">
         <text class="price">￥{{currentWork.price}}</text>       
@@ -37,7 +38,7 @@
                 wx:key="index" 
                 wx:for-index="index"
             >
-                    <text>{{item.displayName}}：</text>
+                    <!-- <text>{{item.displayName}}：</text>
                     <picker 
                         bindchange="bindPickerChange" 
                         data-item="{{item}}" 
@@ -46,7 +47,14 @@
                         range-key="{{'value'}}"
                     >
                         <view class="picker">{{item.dataArray[item.indexArray].value}} </view>
-                    </picker>
+
+                    </picker> -->
+
+                   <inputPrompt 
+                        data="{{item}}" 
+                        bind:changeData="changeData" 
+                        data-index="{{index}}"
+                    /> 
             </view>
         </view>
         <view class="foot">

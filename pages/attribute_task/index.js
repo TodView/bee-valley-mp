@@ -2,7 +2,7 @@ const beevalley = require("../../utils/beevalley.js");
 Page({
     data: {
         modelHidden: false,
-        currentWork: {}
+        currentWork: {},
     },
 
     showModel() {
@@ -11,10 +11,12 @@ Page({
         })
     },
 
-    bindPickerChange(e) {
-        let item = e.currentTarget.dataset.item;
+    changeData(e) {
+        let dependency = e.detail.dependency;
         let index = e.currentTarget.dataset.index;
-        let selectIndex = e.detail.value;
+        let selectIndex = e.detail.index;
+        let id = e.detail.id;
+        let attr = e.detail.attr;
         let {
             attributes
         } = this.data.currentWork;
@@ -23,13 +25,13 @@ Page({
         this.setData({
             "currentWork.attributes": attributes
         })
-        if (!item.dependency) {
-            let id = item.dataArray[selectIndex].id;
-            let attr = attributes.find((v) => v.dependency === item.attr).attr;
-            beevalley.getAttribute(this.apitoken, this.data.currentWork.category, attr, id, (res) => {
+        if (!dependency) {
+            //let id = item.dataArray[selectIndex].id;
+            let attrs = attributes.find((v) => v.dependency === attr).attr;
+            beevalley.getAttribute(this.apitoken, this.data.currentWork.category, attrs, id, (res) => {
                 if (beevalley.handleError(res)) {
                     attributes.forEach((v, index) => {
-                        if (v.dependency === item.attr) {
+                        if (v.dependency === attr) {
                             attributes[index].dataArray = res.data;
                             attributes[index].indexArray = 0;
                             this.setData({
@@ -41,6 +43,7 @@ Page({
 
             })
         }
+        //console.log(e)
     },
 
     submitWork() {
@@ -142,38 +145,63 @@ Page({
         }
     },
 
+    fetchWorks(){
+        beevalley.fetchWorks(this.apitoken, "attribute", 3, this.packageId, (res) => {
+            if (beevalley.handleError(res)) {
+                if(res.data.length === 0){
+                    wx.showToast({
+                        title: '当前没有任务',
+                        mask: true
+                    })
+                    wx.navigateBack({
+                        delta: 1
+                    })
+
+                }else{
+                    this.work = res.data;
+                    this.nextWork();
+                } 
+            }
+        })
+    },
+
+    downloadWorkFile(work){
+        beevalley.downloadWorkFile(this.apitoken, work.id, null, (res4) => {
+            if (beevalley.handleError(res4)) {
+                work.src = res4.tempFilePath
+
+                this.setData({
+                    currentWork: work
+                });
+                this.getSelect(work);
+            }
+            wx.hideLoading();
+        })
+    },
+
     nextWork() {
         wx.showLoading({
             title: "加载中",
             mask: true,
         })
         this.index = 0;
-        this.setData({
-            currentWork: {}
-        })
-        beevalley.fetchWorks(this.apitoken, "attribute", 1, this.packageId, (res) => {
-            if (beevalley.handleError(res)) {
-                let work = {};
-                work.id = res.data[0].id;
-                work.price = res.data[0].price;
-                work.details = res.data[0].details;
-                work.expiredAt = res.data[0].expiredAt;
-                work.attributes = res.data[0].meta.attributes;
-                work.category = res.data[0].meta.category;
 
-                beevalley.downloadWorkFile(this.apitoken, work.id, null, (res4) => {
-                    if (beevalley.handleError(res4)) {
-                        work.src = res4.tempFilePath
+        if(this.work.length === 0){
+            this.fetchWorks();
+        }else{
+            let currentWork = this.work.pop();
+            let work = {};
+            work.id = currentWork.id;
+            work.price = currentWork.price;
+            work.details = currentWork.details;
+            work.expiredAt = currentWork.expiredAt;
+            work.attributes = currentWork.meta.attributes;
+            work.category = currentWork.meta.category;
+            work.description = currentWork.description;
+            this.downloadWorkFile(work)
+        }
 
-                        this.setData({
-                            currentWork: work
-                        });
-                        this.getSelect(work);
-                    }
-                    wx.hideLoading();
-                })
-            }
-        })
+        
     },
 
     onLoad(options) {
@@ -182,6 +210,12 @@ Page({
         this.apitoken = wx.getStorageSync('apitoken');
         this.nextWork();
 
+    },
+
+    onUnload: function () {
+        if (this.data.currentWork.id) {
+            beevalley.cancelWork(this.apitoken, [this.data.currentWork.id], function (res) { })
+        }
     },
 
     hideModel() {
