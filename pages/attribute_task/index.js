@@ -207,6 +207,7 @@ Page({
     onLoad(options) {
         this.packageId = options.packageId;
         this.index = 0;
+        this.work = [];
         this.apitoken = wx.getStorageSync('apitoken');
         this.nextWork();
 
