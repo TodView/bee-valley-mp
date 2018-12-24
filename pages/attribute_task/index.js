@@ -74,6 +74,7 @@ Page({
         let {
             currentWork
         } = this.data;
+        
         if (this.data.displayTimer === "超时") {
             // this.showLoading();
             wx.showModal({
@@ -88,26 +89,38 @@ Page({
                 }
             })
         } else {
+            
             let result = [];
             currentWork.attributes.forEach((item) => {
-                result.push({
-                    attr: item.attr,
-                    value: item.dataArray[item.indexArray].value
-                })
-            })
-            beevalley.submitWork(this.apitoken, currentWork.id, result, (res) => {
-                if (beevalley.handleError(res)) {
-                    this.setData({
-                        modelHidden: false,
-                        clear: true
+                if(item.value){
+                    result.push({
+                        attr: item.attr,
+                        value: item.dataArray[item.indexArray].value
                     })
-                    wx.showToast({
-                        title: '提交成功',
-                        mask: true
-                    })
-                    this.nextWork();
                 }
             })
+            if(result.length === currentWork.attributes.length){
+                beevalley.submitWork(this.apitoken, currentWork.id, result, (res) => {
+                    if (beevalley.handleError(res)) {
+                        this.setData({
+                            modelHidden: false,
+                            clear: true
+                        })
+                        wx.showToast({
+                            title: '提交成功',
+                            mask: true
+                        })
+                        this.nextWork();
+                    }
+                })
+            }else{
+                wx.showModal({
+                    title: '请添写对应的属性',
+                    mask: true,
+                    showCancel: false,
+                    confirmText: "知道了"
+                }) 
+            }
         }
 
 
@@ -165,17 +178,22 @@ Page({
                 currentWork: work
             })
         } else {
-            let id = work.attributes[this.index].dependency ? work.attributes.find((v) => v.attr === work.attributes[this.index].dependency).dataArray[0].id : false;
+            if(work.attributes[this.index].dependency){
+                this.index++;
+                this.getSelect(work);
+            }else{
+                beevalley.getAttribute(this.apitoken, work.category, work.attributes[this.index].attr, false, (res) => {
+                    if (beevalley.handleError(res)) {
+                        work.attributes[this.index].dataArray = res.data;
+                        work.attributes[this.index].indexArray = 0;
+                        work.value = '';
+                        this.index++;
+                        this.getSelect(work);
+                    }
+                })
+            }
+            // let id = work.attributes[this.index].dependency ? work.attributes.find((v) => v.attr === work.attributes[this.index].dependency).dataArray[0].id : false;
 
-            beevalley.getAttribute(this.apitoken, work.category, work.attributes[this.index].attr, id, (res) => {
-                if (beevalley.handleError(res)) {
-                    work.attributes[this.index].dataArray = res.data;
-                    work.attributes[this.index].indexArray = 0;
-                    work.value = '';
-                    this.index++;
-                    this.getSelect(work);
-                }
-            })
         }
     },
 
