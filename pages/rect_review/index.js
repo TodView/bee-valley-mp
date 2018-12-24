@@ -1,4 +1,4 @@
-let beevalley = require("../../utils/beevalley.js");
+﻿let beevalley = require("../../utils/beevalley.js");
 let wxDraw = require("../../utils/wxdraw.min.js").wxDraw;
 let Shape = require("../../utils/wxdraw.min.js").Shape;
 
@@ -52,8 +52,9 @@ Page({
       this.showLoading();
       let that = this;
       beevalley.submitReview(this.apitoken, this.data.currentWork.id, true, function (res) {
-        that.handleError(res);
-        that.nextWork();
+        if (beevalley.handleError(res)) {
+          that.nextWork();
+        }
       })
     }
   },
@@ -63,8 +64,9 @@ Page({
       this.showLoading();
       let that = this;
       beevalley.submitReview(this.apitoken, this.data.currentWork.id, false, function (res) {
-        that.handleError(res);
-        that.nextWork();
+        if (beevalley.handleError(res)) {
+          that.nextWork();
+        }
       })
     }
   },
@@ -144,20 +146,21 @@ Page({
     let that = this;
 
     beevalley.fetchAuditWorks(this.apitoken, 'rect', 3, this.packageId, function (res) {
-      that.handleError(res);
-      let works = res.data;
-      that.setData({
-        works: works.map(w => that.preprocessWork(w))
-      });
-      if (works.length > 0) {
-        // works.reverse().forEach(w => that.downloadWorkFile(w));
-        that.downloadWorkFile(works[works.length - 1]);
-        that.nextWork();
-      } else {
-        wx.hideLoading();
-        wx.showToast({
-          title: '暂时没有任务'
-        })
+      if (beevalley.handleError(res)) {
+        let works = res.data;
+        that.setData({
+          works: works.map(w => that.preprocessWork(w))
+        });
+        if (works.length > 0) {
+          // works.reverse().forEach(w => that.downloadWorkFile(w));
+          that.downloadWorkFile(works[works.length - 1]);
+          that.nextWork();
+        } else {
+          wx.hideLoading();
+          wx.showToast({
+            title: '暂时没有任务'
+          })
+        }
       }
     });
 
@@ -167,19 +170,20 @@ Page({
     let that = this;
     // console.log(work.downloadOptions)
     beevalley.downloadAuditWorkFile(this.apitoken, work.id, work.downloadOptions, function (res) {
-      that.handleError(res);
-      let imageSrc = 'data:image/jpeg;base64,' + wx.arrayBufferToBase64(res.data);
+      if (beevalley.handleError(res)) {
+        let imageSrc = 'data:image/jpeg;base64,' + wx.arrayBufferToBase64(res.data);
 
-      if (that.data.currentWork && that.data.currentWork.id === work.id) {
-        that.setData({
-          'currentWork.src': imageSrc
-        });
-      } else {
-        let foundIndex = that.data.works.findIndex(w => w.id === work.id);
-        if (foundIndex >= 0) {
-          let imageData = {};
-          imageData['works[' + foundIndex + '].src'] = imageSrc;
-          that.setData(imageData);
+        if (that.data.currentWork && that.data.currentWork.id === work.id) {
+          that.setData({
+            'currentWork.src': imageSrc
+          });
+        } else {
+          let foundIndex = that.data.works.findIndex(w => w.id === work.id);
+          if (foundIndex >= 0) {
+            let imageData = {};
+            imageData['works[' + foundIndex + '].src'] = imageSrc;
+            that.setData(imageData);
+          }
         }
       }
     })
@@ -272,21 +276,21 @@ Page({
     }
   },
 
-  handleError: function (res) {
-    if (res.statusCode === 403) {
-      // TODO handle error
-      wx.showModal({
-        title: '任务超时',
-        content: '请稍后重试',
-        showCancel: false,
-        confirmText: "知道了",
-        success: function() {
-          wx.navigateBack({
-            delta: 1
-          })
-        }
-      })
-    }
-  }
+  // handleError: function (res) {
+  //   if (res.statusCode === 403) {
+  //     // TODO handle error
+  //     wx.showModal({
+  //       title: '任务超时',
+  //       content: '请稍后重试',
+  //       showCancel: false,
+  //       confirmText: "知道了",
+  //       success: function() {
+  //         wx.navigateBack({
+  //           delta: 1
+  //         })
+  //       }
+  //     })
+  //   }
+  // }
 
 })

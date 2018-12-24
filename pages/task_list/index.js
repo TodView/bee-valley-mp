@@ -1,12 +1,13 @@
 const app = getApp()
 let beevalley = require("../../utils/beevalley.js");
+const priceRatio = getApp().globalData.priceRatio
 
 Page({
 
   data: {
-        is_modal_Hidden:true,
-        is_modal_Msg:'我是一个自定义组件'
-    
+    is_modal_Hidden: true,
+    is_modal_Msg: '我是一个自定义组件'
+
 
   },
 
@@ -15,17 +16,19 @@ Page({
 
     let that = this;
     let apitoken = wx.getStorageSync('apitoken');
-    this.setData({ apitoken: apitoken });
+    this.setData({
+      apitoken: apitoken
+    });
     this.fetchTaskTypes();
 
   },
 
-  getmodaldata: function(e){
+  getmodaldata: function (e) {
 
     this.setData({
       is_modal_Hidden: !this.data.is_modal_Hidden
     })
-    if(e.detail.isSumbit){
+    if (e.detail.isSumbit) {
       wx.navigateTo({
         url: "../" + this.taskType + "_task/index?packageId=" + this.packageId
       })
@@ -45,11 +48,15 @@ Page({
 
     let that = this;
     beevalley.listAuthorizedWorkType(this.data.apitoken, function (res) {
-      console.log(res)//等待后端改数据类型
+      //console.log(res) 等待后端改数据类型
       if (res.statusCode === 200) {
-        that.setData({ taskTypes: res.data });
+        that.setData({
+          taskTypes: that.preprocessData(res.data)
+        });
       } else {
-        that.setData({ taskTypes: [] });
+        that.setData({
+          taskTypes: []
+        });
       }
       wx.stopPullDownRefresh();
       wx.hideLoading();
@@ -57,14 +64,30 @@ Page({
 
   },
 
+  preprocessData: function (authData) {
+    return authData.map(auth => {
+      let priceRange = auth.priceRange
+      let splits = priceRange.split('-')
+      let newPriceRange = splits.map(s => (parseFloat(s) * priceRatio).toFixed(2)).join('-')
+      auth.priceRange = newPriceRange
+      return auth
+    })
+  },
+
   navToTask: function (e) {
     this.taskType = e.currentTarget.dataset.tasktype;
     this.packageId = e.currentTarget.dataset.packageid;
-
-    // Display only rect type for QTS
     if (this.taskType === 'rect') {
       this.setData({
         is_modal_Hidden: !this.data.is_modal_Hidden
+      })
+    } else if (this.taskType === 'collect') {
+      wx.navigateTo({
+        url: "../" + this.taskType + "_task/index?packageId=" + this.packageId
+      })
+    } else if(this.taskType === 'attribute'){
+      wx.navigateTo({
+        url: "../" + this.taskType + "_task/index?packageId=" + this.packageId
       })
     }
 

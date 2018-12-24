@@ -1,0 +1,9 @@
+{
+    "navigationBarBackgroundColor": "#00CC88",
+    "navigationBarTextStyle": "#fff",
+    "navigationBarTitleText": "属性标注任务",
+    "backgroundColor": "#eeeeee",
+    "usingComponents": {
+      "inputPrompt": "../Input_prompt/index"
+    }
+  }

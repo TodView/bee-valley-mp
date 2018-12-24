@@ -1,0 +1,65 @@
+<view class="container">
+    <view class="catTask">
+        <image
+            wx:if="{{currentWork.src}}"
+            class="rectAuditImg"
+            src="{{currentWork.src}}"
+            style="width:100%"
+            mode="widthFix"
+            bindload="imageLoad"
+        ></image>
+    </view>
+    <view class="showMessage">
+        <icon 
+            type="info" 
+            class="icon" 
+            bindtap="clickIcon" 
+            color="#33CCFF"
+        />
+        {{currentWork.description}}
+    </view>
+    <view class="doSomething">
+        <text class="price">￥{{currentWork.price}}</text>       
+        <text class='timer'>{{displayTimer}}</text>
+        
+        <view class="btn">
+            <button type="primary" bindtap="showModel">标属性</button>
+        </view>
+        <view class="btn">
+            <button type="warn" bindtap="cancelWork">放弃</button>
+        </view>
+    </view>
+
+    <view class="showModel" style="display:{{modelHidden ? 'block' : 'none'}}">
+        <view class="showWrap">
+            <view class="tabs" 
+                wx:for="{{currentWork.attributes}}" 
+                wx:for-item="item"  
+                wx:key="index" 
+                wx:for-index="index"
+            >
+                    <!-- <text>{{item.displayName}}：</text>
+                    <picker 
+                        bindchange="bindPickerChange" 
+                        data-item="{{item}}" 
+                        data-index="{{index}}"
+                        range="{{item.dataArray}}" 
+                        range-key="{{'value'}}"
+                    >
+                        <view class="picker">{{item.dataArray[item.indexArray].value}} </view>
+
+                    </picker> -->
+
+                   <inputPrompt 
+                        data="{{item}}" 
+                        bind:changeData="changeData" 
+                        data-index="{{index}}"
+                    /> 
+            </view>
+        </view>
+        <view class="foot">
+            <view bindtap='submitWork' class='cancel button1'>提交</view>
+            <view bindtap='hideModel' class='submit button1'>返回</view>
+        </view>
+    </view>
+</view>

@@ -1,7 +1,9 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/attribute_task/index",    
     "pages/rect_review/index",
+    "pages/collect_task/index",
     "pages/task_list/index",
     "pages/rect_task/index",
     "pages/review_list/index",

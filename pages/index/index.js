@@ -1,4 +1,4 @@
-const app = getApp()
+﻿const app = getApp()
 const beevalley = require("../../utils/beevalley.js");
 const moment = require('../../utils/moment.min.js');
 const base64 = require('../../utils/base64.min.js');

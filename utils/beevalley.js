@@ -21,14 +21,29 @@ function fetchWorks(token, type, num, packageId, callback) {
   });
 }
 
-function downloadWorkFile(token, workId, options, callback) {
-  wx.request({
-    url: options ? `${TODVIEW_API_BASE_URL}works/${workId}/file?format=${options.format}&x=${options.x}&y=${options.y}&width=${options.width}&height=${options.height}` : `${TODVIEW_API_BASE_URL}works/${workId}/file`,
-    method: 'GET',
+function downloadWorkFiles(token, workId, fileId, callback) {
+  wx.downloadFile({
+    url: `${TODVIEW_API_BASE_URL}works/${workId}/files/${fileId}?format=jpeg&thumbnail=true`,
+    // method: 'GET',
     header: {
       'Authorization': 'Bearer ' + token
     },
-    responseType: 'arraybuffer',
+    // responseType: 'arraybuffer',
+    success: wrap(callback)
+  });
+}
+
+function downloadWorkFile(token, workId, options, callback) {
+  wx.downloadFile({
+    url: options ?
+      `${TODVIEW_API_BASE_URL}works/${workId}/file?format=${options.format}&x=${options.x}&y=${options.y}&width=${options.width}&height=${options.height}`
+      :
+      `${TODVIEW_API_BASE_URL}works/${workId}/file`,
+    //method: 'GET',
+    header: {
+      'Authorization': 'Bearer ' + token
+    },
+    //responseType: 'arraybuffer',
     success: wrap(callback)
   });
 }
@@ -112,7 +127,7 @@ function wrap(callback) {
 
 function handleError(res) {
   if (res.statusCode === 401) {
-    wx.removeStorageSync('apitoken');    
+    wx.removeStorageSync('apitoken');
     wx.showModal({
       title: '重新登录',
       content: '登录过期，需要重新登录',
@@ -285,6 +300,92 @@ function renderRect(rect, rectPosition) {
   }
 }
 
+function workFile(token, workId, files, callback) {
+  wx.uploadFile({
+    url: TODVIEW_API_BASE_URL + 'works/files',
+    filePath: files,
+    formData: {
+      workId: workId
+    },
+    name: "file",
+    header: {
+      // 'content-type': 'x-www-form-urlencoded',
+      'Authorization': 'Bearer ' + token
+    },
+    success: wrap(callback)
+  });
+}
+
+function getAttribute(token, category, attribute, prerequisiteId, callback) {
+  wx.request({
+    url: prerequisiteId ? TODVIEW_API_BASE_URL + `categories/${category}/attributes/${attribute}?prerequisite=${prerequisiteId}` : TODVIEW_API_BASE_URL + `categories/${category}/attributes/${attribute}`,
+    method: 'GET',
+    header: {
+      'Authorization': 'Bearer ' + token
+    },
+    success: wrap(callback)
+  });
+}
+
+// function getCarModel(token, id, callback) {
+//   wx.request({
+//     url: TODVIEW_API_BASE_URL + `categories/car/attributes/model?prerequisite=${id}`,
+//     method: 'GET',
+//     header: {
+//       'Authorization': 'Bearer ' + token
+//     },
+//     success: wrap(callback)
+//   });
+// }
+
+function handleError(res) {
+  if (res.statusCode === 403) {
+    wx.hideLoading()
+    if (typeof res.data === 'object' && res.data.error && res.data.error.code === '20') {
+      wx.showModal({
+        title: '任务配额已用完',
+        content: '请稍后重试',
+        showCancel: false,
+        confirmText: "知道了",
+        success: function () {
+          wx.navigateBack({
+            delta: 1
+          })
+        }
+      })
+      return false
+    } else {
+      wx.showModal({
+        title: '任务超时',
+        content: '请稍后重试',
+        showCancel: false,
+        confirmText: "知道了",
+        success: function () {
+          wx.navigateBack({
+            delta: 1
+          })
+        }
+      })
+      return false
+    }
+  } else if (res.statusCode !== 200) {
+    wx.hideLoading()
+    wx.showModal({
+      title: '系统错误',
+      content: '请稍后重试',
+      showCancel: false,
+      confirmText: "知道了",
+      success: function () {
+        wx.navigateBack({
+          delta: 1
+        })
+      }
+    })
+    return false
+  }
+  return true
+}
+
 module.exports.fetchWorks = fetchWorks
 exports.downloadWorkFile = downloadWorkFile
 exports.submitWork = submitWork
@@ -301,3 +402,7 @@ exports.calculateWorkarea = calculateWorkarea
 exports.renderInfoBox = renderInfoBox
 exports.startTimer = startTimer
 exports.renderRect = renderRect
+exports.workFile = workFile
+exports.downloadWorkFiles = downloadWorkFiles
+exports.getAttribute = getAttribute
+exports.handleError = handleError

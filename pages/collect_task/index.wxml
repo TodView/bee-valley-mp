@@ -1,0 +1,64 @@
+<view class="ac_wrap">
+    <view class="main-content">
+        <view class="task_demand">
+            <!-- <view class="panel__title">第1步</view> -->
+            <view class="title">任务要求</view>
+            <view class="content-list">
+                <view 
+                    class="list-item" 
+                    wx:for="{{textMessage}}" 
+                    wx:key="index" 
+                    wx:for-index="index" 
+                    wx:for-item="item"
+                >
+                    {{index+1}} {{item}};
+                </view>
+            </view>
+            <!-- <view class="content-img">
+                <image src="{{staticImg[0].src}}" class="img" /> 
+            </view> -->
+        </view>
+    </view>
+
+    <view class="user-photo">
+        <view class="user-photo-wrap">
+            <view class="take-photo">
+                <view 
+                    class="show-item" 
+                    wx:key="index" 
+                    wx:for-index="index" 
+                    wx:for="{{staticImg}}" 
+                    wx:for-item="item"
+                >
+                    <view class="eg img-item">
+                        <view class="eg-item">示例</view>
+                        <image src="{{item.src}}" class="img" mode="aspectFit"></image>
+                    </view>
+                    <view class="img-item">
+                        <view class="showImg" wx:if="{{item.photoSrc}}">
+                            <view wx:if="{{item.editable}}" class="delete" bindtap="delete" data-index="{{index}}">×</view>
+                            <view wx:if="{{!item.editable}}" class="delete1" >图片已通过审核</view>
+                            <image src="{{item.photoSrc}}" class="img" mode="aspectFit"></image>
+                        </view>
+                        <view class="showIcon" wx:if="{{!item.photoSrc && item.editable}}" bindtap="takePhotos" data-index="{{index}}">
+                            <!-- 相机图标 -->
+                            添加图片
+                        </view>
+                    </view>
+                </view>
+            </view>
+            <view class="info">请采集{{staticImg.length}}张照片</view>
+            <view class="cenggao"></view>
+        </view>
+    </view>
+    
+    <view class="cengHeight"></view>
+    <!-- <view class="top">
+        <view class="top-info">0/1 已添加</view>
+    </view> -->
+
+    <view class="bottom-btn">
+        <button type="primary" class="btn" bindtap="submitWork">提交</button>
+        <button type="primary" class="btn" bindtap="cancelWork">放弃</button>
+    </view>
+</view>

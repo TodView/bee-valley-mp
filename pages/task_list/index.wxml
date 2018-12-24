@@ -3,9 +3,8 @@
   <view wx:for="{{taskTypes}}" wx:key="type">
     <view class='wrap_item' bindtap="navToTask" data-packageId="{{item.packageId}}" data-tasktype="{{item.typeCode}}">
       <view class="showText">{{item.packageName}}:{{item.typeName}}</view>
-      <view class="showPrice">{{item.priceRange}}元/张</view>
-    </view>
-    
+      <view class="showPrice">{{item.priceRange}}元/{{item.typeCode === 'collect' ? '组' : '张'}}</view>
+    </view>    
   </view>
 
   <view class="message" wx:if="{{taskTypes && taskTypes.length === 0}}">

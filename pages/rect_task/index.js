@@ -4,6 +4,7 @@ const app = getApp()
 let wxDraw = require("../../utils/wxdraw.min.js").wxDraw;
 let Shape = require("../../utils/wxdraw.min.js").Shape;
 let beevalley = require("../../utils/beevalley.js");
+const priceRatio = getApp().globalData.priceRatio
 
 Page({
 
@@ -18,7 +19,7 @@ Page({
     ratio: 1
   },
 
-  clickIcon(e) {
+  clickIcon() {
 
     if (this.data.currentWork) {
       var info = ''
@@ -41,9 +42,9 @@ Page({
     if (this.data.rectInitialized && this.data.currentWork) {
       let that = this;
       let item = this.data.currentWork;
-      let {ratio} = this.data;
-      var relativeAnchorX = (item.anchorX - item.xOffset)/ratio;
-      var relativeAnchorY = (item.anchorY - item.yOffset)/ratio;
+      let { ratio } = this.data;
+      var relativeAnchorX = (item.anchorX - item.xOffset) / ratio;
+      var relativeAnchorY = (item.anchorY - item.yOffset) / ratio;
       if (relativeAnchorX > this.data.rectPosition.xMin && relativeAnchorX < this.data.rectPosition.xMax && relativeAnchorY > this.data.rectPosition.yMin && relativeAnchorY < this.data.rectPosition.yMax) {
         this.showLoading();
         // adjust for stroke width
@@ -60,8 +61,9 @@ Page({
             }]
           ],
           function (res) {
-            that.handleError(res);
-            that.nextWork();
+            if (beevalley.handleError(res)) {
+              that.nextWork();
+            }
           });
       }
     }
@@ -121,12 +123,12 @@ Page({
       }
 
       if (candidate.previousWork) {
-        let {ratio} = this.data;
+        let { ratio } = this.data;
         data['rectPosition'] = {
-          xMin: (candidate.previousWork.result[0][0].x - candidate.xOffset)/ratio,
-          yMin: (candidate.previousWork.result[0][0].y - candidate.yOffset)/ratio,
-          xMax: (candidate.previousWork.result[0][1].x - candidate.xOffset)/ratio,
-          yMax: (candidate.previousWork.result[0][1].y - candidate.yOffset)/ratio
+          xMin: (candidate.previousWork.result[0][0].x - candidate.xOffset) / ratio,
+          yMin: (candidate.previousWork.result[0][0].y - candidate.yOffset) / ratio,
+          xMax: (candidate.previousWork.result[0][1].x - candidate.xOffset) / ratio,
+          yMax: (candidate.previousWork.result[0][1].y - candidate.yOffset) / ratio
         };
         data['rectInitialized'] = true;
       }
@@ -143,8 +145,8 @@ Page({
 
     let anchorX = Math.floor(work.prerequisites[0].result[work.meta.index].x);
     let anchorY = Math.floor(work.prerequisites[0].result[work.meta.index].y);
-    let {ratio} = this.data;
-    let options = beevalley.calculateWorkarea(work.meta.imageWidth, work.meta.imageHeight, anchorX, anchorY, Math.round(this.data.imageAreaWidth*ratio), Math.round(this.data.imageAreaHeight*ratio));
+    let { ratio } = this.data;
+    let options = beevalley.calculateWorkarea(work.meta.imageWidth, work.meta.imageHeight, anchorX, anchorY, Math.round(this.data.imageAreaWidth * ratio), Math.round(this.data.imageAreaHeight * ratio));
     options['format'] = 'jpeg';
 
     work['xOffset'] = options.x;
@@ -153,6 +155,8 @@ Page({
     work['anchorY'] = anchorY;
     work['downloadOptions'] = options;
 
+    work.price = (work.price * priceRatio).toFixed(2)
+
     return work;
   },
 
@@ -160,19 +164,20 @@ Page({
     let that = this;
 
     beevalley.fetchWorks(this.apitoken, 'rect', 3, this.packageId, function (res) {
-      that.handleError(res);
-      let works = res.data;
-      that.setData({
-        works: works.map(w => that.preprocessWork(w))
-      });
-      if (works.length > 0) {
-        that.downloadWorkFile(works[works.length - 1]);
-        that.nextWork();
-      } else {
-        wx.hideLoading();
-        wx.showToast({
-          title: '暂时没有任务',
-        })
+      if (beevalley.handleError(res)) {
+        let works = res.data;
+        that.setData({
+          works: works.map(w => that.preprocessWork(w))
+        });
+        if (works.length > 0) {
+          that.downloadWorkFile(works[works.length - 1]);
+          that.nextWork();
+        } else {
+          wx.hideLoading();
+          wx.showToast({
+            title: '暂时没有任务',
+          })
+        }
       }
     });
 
@@ -182,22 +187,22 @@ Page({
     let that = this;
 
     beevalley.downloadWorkFile(this.apitoken, work.id, work.downloadOptions, function (res) {
-      that.handleError(res);
-      let imageSrc = 'data:image/jpeg;base64,' + wx.arrayBufferToBase64(res.data);
+      if (beevalley.handleError(res)) {
+        // let imageSrc = 'data:image/jpeg;base64,' + wx.arrayBufferToBase64(res.data);
 
-      if (that.data.currentWork && that.data.currentWork.id === work.id) {
-        that.setData({
-          'currentWork.src': imageSrc
-        });
-      } else {
-        let foundIndex = that.data.works.findIndex(w => w.id === work.id);
-        if (foundIndex >= 0) {
-          let imageData = {};
-          imageData['works[' + foundIndex + '].src'] = imageSrc;
-          that.setData(imageData);
+        if (that.data.currentWork && that.data.currentWork.id === work.id) {
+          that.setData({
+            'currentWork.src': res.tempFilePath
+          });
+        } else {
+          let foundIndex = that.data.works.findIndex(w => w.id === work.id);
+          if (foundIndex >= 0) {
+            let imageData = {};
+            imageData['works[' + foundIndex + '].src'] = imageSrc;
+            that.setData(imageData);
+          }
         }
       }
-
     })
 
   },
@@ -228,10 +233,10 @@ Page({
 
   createAnchor: function (id) {
     if (this.data.currentWork.id === id && !this.circle) {
-      let {ratio} = this.data;
+      let { ratio } = this.data;
       var circle = new Shape('circle', {
-        x: (this.data.currentWork.anchorX - this.data.currentWork.xOffset)/ratio,
-        y: (this.data.currentWork.anchorY - this.data.currentWork.yOffset)/ratio,
+        x: (this.data.currentWork.anchorX - this.data.currentWork.xOffset) / ratio,
+        y: (this.data.currentWork.anchorY - this.data.currentWork.yOffset) / ratio,
         r: 5,
         fillStyle: "#E6324B"
       });
@@ -369,7 +374,7 @@ Page({
     let that = this;
     var query = wx.createSelectorQuery();
     query.select('.imglab').boundingClientRect()
-    query.exec(function (res) {  
+    query.exec(function (res) {
       that.setData({
         imageAreaWidth: Math.floor(res[0].width),
         imageAreaHeight: Math.floor(res[0].height)
@@ -392,95 +397,95 @@ Page({
     }
   },
 
-  handleError: function (res) {
-    if (res.statusCode === 403) {
-      // TODO handle error
-      wx.showModal({
-        title: '任务超时',
-        content: '请稍后重试',
-        showCancel: false,
-        confirmText: "知道了",
-        success: function () {
-          wx.navigateBack({
-            delta: 1
-          })
+  // handleError: function (res) {
+  //   if (res.statusCode === 403) {
+  //     // TODO handle error
+  //     wx.showModal({
+  //       title: '任务超时',
+  //       content: '请稍后重试',
+  //       showCancel: false,
+  //       confirmText: "知道了",
+  //       success: function () {
+  //         wx.navigateBack({
+  //           delta: 1
+  //         })
+  //       }
+  //     })
+  //   }
+  // },
+
+  lessRatio: function () {
+    let { currentWork, ratio } = this.data;
+    if (ratio <= 1) {
+      wx.showToast({
+        title: '不能继续缩小'
+      })
+    } else {
+      ratio -= 1;
+      this.setData({
+        ratio: ratio
+      }, () => {
+        this.preprocessWork(currentWork)
+        this.downloadWorkFile(currentWork)
+
+        this.updateCircle();
+
+        if (currentWork.previousWork) {
+          let rectData = {
+            xMin: (currentWork.previousWork.result[0][0].x - currentWork.xOffset) / ratio,
+            yMin: (currentWork.previousWork.result[0][0].y - currentWork.yOffset) / ratio,
+            xMax: (currentWork.previousWork.result[0][1].x - currentWork.xOffset) / ratio,
+            yMax: (currentWork.previousWork.result[0][1].y - currentWork.yOffset) / ratio
+          };
+          this.data.rectInitialized = true;
+
+          this.data.rectPosition = rectData;
         }
+
+        beevalley.renderRect(this.rect, this.data.rectPosition);
       })
     }
   },
 
-  lessRatio: function(){
-    let { currentWork, ratio } = this.data;
-        if (ratio <= 1) {
-            wx.showToast({
-                title: '不能继续缩小'
-            })
-        } else {
-            ratio -= 1;
-            this.setData({
-              ratio: ratio
-          }, () => {
-                this.preprocessWork(currentWork)
-                this.downloadWorkFile(currentWork)
-              
-                this.updateCircle();
-
-                if (currentWork.previousWork) {
-                  let rectData = {
-                    xMin: (currentWork.previousWork.result[0][0].x - currentWork.xOffset)/ratio,
-                    yMin: (currentWork.previousWork.result[0][0].y - currentWork.yOffset)/ratio,
-                    xMax: (currentWork.previousWork.result[0][1].x - currentWork.xOffset)/ratio,
-                    yMax: (currentWork.previousWork.result[0][1].y - currentWork.yOffset)/ratio
-                  };
-                  this.data.rectInitialized = true;
-
-                  this.data.rectPosition = rectData;
-                }
-  
-                beevalley.renderRect(this.rect, this.data.rectPosition);
-          })
-        }
-  },
-
-  addRatio: function(){
+  addRatio: function () {
     let { currentWork, ratio, imageAreaWidth, imageAreaHeight } = this.data;
     if (imageAreaWidth * (ratio + 1) > currentWork.meta.imageWidth || imageAreaHeight * (ratio + 1) > currentWork.meta.imageHeight) {
-        wx.showToast({
-            title: '不能继续放大'
-        })
+      wx.showToast({
+        title: '不能继续放大'
+      })
     } else {
-        ratio += 1;
-        this.setData({
-            ratio: ratio
-        }, () => {
-            
-              this.preprocessWork(currentWork)
-              this.downloadWorkFile(currentWork)
-            
-              this.updateCircle();
+      ratio += 1;
+      this.setData({
+        ratio: ratio
+      }, () => {
 
-              if (currentWork.previousWork) {
-                let rectData = {
-                  xMin: (currentWork.previousWork.result[0][0].x - currentWork.xOffset)/ratio,
-                  yMin: (currentWork.previousWork.result[0][0].y - currentWork.yOffset)/ratio,
-                  xMax: (currentWork.previousWork.result[0][1].x - currentWork.xOffset)/ratio,
-                  yMax: (currentWork.previousWork.result[0][1].y - currentWork.yOffset)/ratio
-                };
-                this.data.rectInitialized = true;
+        this.preprocessWork(currentWork)
+        this.downloadWorkFile(currentWork)
 
-                this.data.rectPosition = rectData;
-              }
+        this.updateCircle();
 
-              beevalley.renderRect(this.rect, this.data.rectPosition);
-        })
+        if (currentWork.previousWork) {
+          let rectData = {
+            xMin: (currentWork.previousWork.result[0][0].x - currentWork.xOffset) / ratio,
+            yMin: (currentWork.previousWork.result[0][0].y - currentWork.yOffset) / ratio,
+            xMax: (currentWork.previousWork.result[0][1].x - currentWork.xOffset) / ratio,
+            yMax: (currentWork.previousWork.result[0][1].y - currentWork.yOffset) / ratio
+          };
+          this.data.rectInitialized = true;
+
+          this.data.rectPosition = rectData;
+        }
+
+        beevalley.renderRect(this.rect, this.data.rectPosition);
+      })
     }
   },
 
-  updateCircle: function(){
-    let {ratio, currentWork} = this.data;
+  updateCircle: function () {
+    let { ratio, currentWork } = this.data;
     this.circle.updateOption({
-      x: (currentWork.anchorX - currentWork.xOffset)/ratio,
-      y: (currentWork.anchorY - currentWork.yOffset)/ratio,
+      x: (currentWork.anchorX - currentWork.xOffset) / ratio,
+      y: (currentWork.anchorY - currentWork.yOffset) / ratio,
     })
   }
 })
