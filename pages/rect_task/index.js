@@ -194,7 +194,7 @@ Page({
           let foundIndex = that.data.works.findIndex(w => w.id === work.id);
           if (foundIndex >= 0) {
             let imageData = {};
-            imageData['works[' + foundIndex + '].src'] = imageSrc;
+            imageData['works[' + foundIndex + '].src'] = res.tempFilePath;
             that.setData(imageData);
           }
         }
