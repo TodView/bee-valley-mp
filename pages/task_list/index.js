@@ -1,6 +1,4 @@
-const app = getApp()
 let beevalley = require("../../utils/beevalley.js");
-const priceRatio = getApp().globalData.priceRatio
 
 Page({
 
@@ -66,10 +64,7 @@ Page({
 
   preprocessData: function (authData) {
     return authData.map(auth => {
-      let priceRange = auth.priceRange
-      let splits = priceRange.split('-')
-      let newPriceRange = splits.map(s => (parseFloat(s) * priceRatio).toFixed(2)).join('-')
-      auth.priceRange = newPriceRange
+      auth.priceRange = auth.priceRange
       return auth
     })
   },

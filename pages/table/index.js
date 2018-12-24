@@ -1,5 +1,4 @@
 let beevalley = require("../../utils/beevalley.js");
-const priceRatio = getApp().globalData.priceRatio
 
 Page({
   data: {
@@ -26,7 +25,7 @@ Page({
 
     // TODO Show only rect type task for now
     let records = [],
-      displayTypes = ['rect', 'collect'],
+      displayTypes = ['rect', 'collect', 'attribute'],
       // count = 1,
       groups = this.groupBy(responData, 'pack'),
       sortedKeys = Object.keys(groups).sort();
@@ -45,7 +44,7 @@ Page({
               total: group.length,
               approved: approved.length,
               rejected: rejected.length,
-              reward: approved.reduce((sum, record) => sum + record.price * priceRatio, 0).toFixed(2)
+              reward: approved.reduce((sum, record) => sum + record.price, 0).toFixed(2)
             })
             // count++;
           }

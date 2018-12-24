@@ -1,10 +1,8 @@
 //index.js
 //获取应用实例
-const app = getApp()
 let wxDraw = require("../../utils/wxdraw.min.js").wxDraw;
 let Shape = require("../../utils/wxdraw.min.js").Shape;
 let beevalley = require("../../utils/beevalley.js");
-const priceRatio = getApp().globalData.priceRatio
 
 Page({
 
@@ -154,8 +152,6 @@ Page({
     work['anchorX'] = anchorX;
     work['anchorY'] = anchorY;
     work['downloadOptions'] = options;
-
-    work.price = (work.price * priceRatio).toFixed(2)
 
     return work;
   },
