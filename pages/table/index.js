@@ -16,6 +16,8 @@ Page({
       return '方框';
     } else if (taskType === 'collect') {
         return '采集';
+    } else if (taskType === 'attribute') {
+      return '属性';
     } else {
       return '未知';
     }

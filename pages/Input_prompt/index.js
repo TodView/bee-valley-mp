@@ -1,51 +1,50 @@
 Component({
-    properties:{
-        data: {
-            type: Object,
-            value: []
-        },
-    },
+  properties: {
     data: {
-        value: null,
-        isShow: false
+      type: Object,
+      value: {}
     },
-    methods: {
-        getFocus(){
+  },
+  data: {
+    userData: []
+  },
 
-            this.setData({
-                isShow: true
-            })
-            if(!this.data.userData){
-                this.setData({
-                    userData: this.data.data.dataArray
+  detached() {
+    this.setData({
+      value: ''
+    })
+  },
 
-                })
-            }
-            
-        },
 
-        select(e){
-            let dependency = this.data.data.dependency ? this.data.data.dependency : false;
-            this.data.data.dataArray.forEach((v, index) => {
-                if( v.value === e.target.dataset.select.value ){
-                    this.triggerEvent('changeData', { 
-                        id: e.target.dataset.select.id,
-                        index: index,
-                        dependency: dependency,
-                        attr: this.data.data.attr
-                    });
-                    this.setData({
-                        value: e.target.dataset.select.value,
-                        isShow: false
-                    })
-                }
-            })
-        },
+  methods: {
+    getFocus(e) {
+      this.setData({
+        userData: this.data.data.dataArray
+      })
+      this.triggerEvent('onFocus', { name: e.target.dataset.name })
 
-        bindInput(e){
-            this.setData({
-                userData: this.data.data.dataArray.filter(v => v.value.indexOf(e.detail.value) !== -1)
-            })
+    },
+
+    select(e) {
+      let dependency = this.data.data.dependency ? this.data.data.dependency : false;
+      this.data.data.dataArray.forEach((v, index) => {
+        if (v.value === e.target.dataset.select.value) {
+          this.triggerEvent('changeData', {
+            id: e.target.dataset.select.id,
+            index: index,
+            dependency: dependency,
+            attr: this.data.data.attr,
+            value: e.target.dataset.select.value
+          });
         }
+      })
+    },
+
+    bindInput(e) {
+      // console.log(e.detail.value)
+      this.setData({
+        userData: this.data.data.dataArray.filter(v => v.value.indexOf(e.detail.value) !== -1)
+      })
     }
+  }
 })

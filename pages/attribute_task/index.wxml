@@ -53,6 +53,7 @@
                    <inputPrompt 
                         data="{{item}}" 
                         bind:changeData="changeData" 
+                        bind:onFocus="getfoucus"
                         data-index="{{index}}"
                     /> 
             </view>
