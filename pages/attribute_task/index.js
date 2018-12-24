@@ -12,6 +12,24 @@ Page({
         
     },
 
+    getfoucus(e){
+        let {
+            attributes
+        } = this.data.currentWork;
+
+        attributes.forEach((v) => {
+            if(v.displayName === e.detail.name){
+                v.show = true;
+            }else{
+                v.show = false;
+            }
+        })
+
+        this.setData({
+            "currentWork.attributes": attributes
+        })
+    },
+
     changeData(e) {
         let dependency = e.detail.dependency;
         let index = e.currentTarget.dataset.index;
@@ -25,18 +43,21 @@ Page({
 
         attributes[index].indexArray = selectIndex;
         attributes[index].value = value;
+        attributes[index].show = false;
         this.setData({
             "currentWork.attributes": attributes
         })
         if (!dependency) {
             //let id = item.dataArray[selectIndex].id;
             let attrs = attributes.find((v) => v.dependency === attr).attr;
+
             beevalley.getAttribute(this.apitoken, this.data.currentWork.category, attrs, id, (res) => {
                 if (beevalley.handleError(res)) {
                     attributes.forEach((v, index) => {
                         if (v.dependency === attr) {
                             attributes[index].dataArray = res.data;
                             attributes[index].indexArray = 0;
+                            attributes[index].value = '';
                             this.setData({
                                 "currentWork.attributes": attributes
                             })

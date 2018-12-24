@@ -6,19 +6,7 @@ Component({
         },
     },
     data: {
-        isShow: false,
         userData: []
-    },
-    attached() {
-        //console.log(this.data.isHidden)
-    
-        //console.log('attached')
-        // this.setData({
-        //     userData: this.data.data.dataArray
-        // })
-
-        //console.log(this.data.userData, this.data.data)
-
     },
     
     detached(){
@@ -29,17 +17,11 @@ Component({
     
 
     methods: {
-        getFocus(){
-                this.setData({
-                    userData: this.data.data.dataArray
-                })
-            
+        getFocus(e){
             this.setData({
-                isShow: true
+                userData: this.data.data.dataArray
             })
-
-
-            //console.log(this.data.data)
+            this.triggerEvent('onFocus', {name: e.target.dataset.name})
             
         },
 
@@ -54,10 +36,6 @@ Component({
                         attr: this.data.data.attr,
                         value: e.target.dataset.select.value
                     });
-                    this.setData({
-                        // value: e.target.dataset.select.value,
-                        isShow: false
-                    })
                 }
             })
         },

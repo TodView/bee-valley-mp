@@ -6,13 +6,14 @@
             placeholder="请输入" 
             class="input"
             bindfocus="getFocus"
+            data-name="{{data.displayName}}"
             bindinput="bindInput"
             value="{{data.value}}"
         />
     </view>
     <view 
         class="prompt" 
-        style="display:{{isShow ? 'block' : 'none'}}"
+        style="display:{{data.show ? 'block' : 'none'}}"
     >
         <view class="prompt_item" 
             wx:for="{{userData}}" 
