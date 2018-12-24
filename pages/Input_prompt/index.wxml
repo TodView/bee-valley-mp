@@ -6,9 +6,8 @@
             placeholder="请输入" 
             class="input"
             bindfocus="getFocus"
-            bindblur="getBlur"
             bindinput="bindInput"
-            value="{{value}}"
+            value="{{data.value}}"
         />
     </view>
     <view 

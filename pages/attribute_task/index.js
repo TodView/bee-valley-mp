@@ -2,19 +2,21 @@ const beevalley = require("../../utils/beevalley.js");
 Page({
     data: {
         modelHidden: false,
-        currentWork: {},
+        currentWork: {}
     },
 
     showModel() {
         this.setData({
             modelHidden: true
         })
+        
     },
 
     changeData(e) {
         let dependency = e.detail.dependency;
         let index = e.currentTarget.dataset.index;
         let selectIndex = e.detail.index;
+        let value = e.detail.value;
         let id = e.detail.id;
         let attr = e.detail.attr;
         let {
@@ -22,6 +24,7 @@ Page({
         } = this.data.currentWork;
 
         attributes[index].indexArray = selectIndex;
+        attributes[index].value = value;
         this.setData({
             "currentWork.attributes": attributes
         })
@@ -51,9 +54,17 @@ Page({
             currentWork
         } = this.data;
         if (this.data.displayTimer === "超时") {
-            this.showLoading();
-            wx.navigateBack({
-                delta: 1
+            // this.showLoading();
+            wx.showModal({
+                title: '当前任务超时',
+                mask: true,
+                showCancel: false,
+                confirmText: "知道了",
+                success: function(){
+                    wx.navigateBack({
+                        delta: 1
+                    })
+                }
             })
         } else {
             let result = [];
@@ -66,7 +77,8 @@ Page({
             beevalley.submitWork(this.apitoken, currentWork.id, result, (res) => {
                 if (beevalley.handleError(res)) {
                     this.setData({
-                        modelHidden: false
+                        modelHidden: false,
+                        clear: true
                     })
                     wx.showToast({
                         title: '提交成功',
@@ -138,6 +150,7 @@ Page({
                 if (beevalley.handleError(res)) {
                     work.attributes[this.index].dataArray = res.data;
                     work.attributes[this.index].indexArray = 0;
+                    work.value = '';
                     this.index++;
                     this.getSelect(work);
                 }
@@ -149,12 +162,18 @@ Page({
         beevalley.fetchWorks(this.apitoken, "attribute", 3, this.packageId, (res) => {
             if (beevalley.handleError(res)) {
                 if(res.data.length === 0){
-                    wx.showToast({
-                        title: '当前没有任务',
-                        mask: true
-                    })
-                    wx.navigateBack({
-                        delta: 1
+                    wx.hideLoading();
+                    wx.showModal({
+                        title: '抱歉',
+                        content: '暂时没有任务了',
+                        mask: true,
+                        showCancel: false,
+                        confirmText: "知道了",
+                        success: function(){
+                            wx.navigateBack({
+                                delta: 1
+                            })
+                        }
                     })
 
                 }else{
@@ -170,9 +189,6 @@ Page({
             if (beevalley.handleError(res4)) {
                 work.src = res4.tempFilePath
 
-                this.setData({
-                    currentWork: work
-                });
                 this.getSelect(work);
             }
             wx.hideLoading();

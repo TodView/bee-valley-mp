@@ -2,25 +2,44 @@ Component({
     properties:{
         data: {
             type: Object,
-            value: []
+            value: {}
         },
     },
     data: {
-        value: null,
-        isShow: false
+        isShow: false,
+        userData: []
     },
+    attached() {
+        //console.log(this.data.isHidden)
+    
+        //console.log('attached')
+        // this.setData({
+        //     userData: this.data.data.dataArray
+        // })
+
+        //console.log(this.data.userData, this.data.data)
+
+    },
+    
+    detached(){
+        this.setData({
+            value: '' 
+        })
+    },
+    
+
     methods: {
         getFocus(){
-
+                this.setData({
+                    userData: this.data.data.dataArray
+                })
+            
             this.setData({
                 isShow: true
             })
-            if(!this.data.userData){
-                this.setData({
-                    userData: this.data.data.dataArray
 
-                })
-            }
+
+            //console.log(this.data.data)
             
         },
 
@@ -32,10 +51,11 @@ Component({
                         id: e.target.dataset.select.id,
                         index: index,
                         dependency: dependency,
-                        attr: this.data.data.attr
+                        attr: this.data.data.attr,
+                        value: e.target.dataset.select.value
                     });
                     this.setData({
-                        value: e.target.dataset.select.value,
+                        // value: e.target.dataset.select.value,
                         isShow: false
                     })
                 }
@@ -43,6 +63,7 @@ Component({
         },
 
         bindInput(e){
+            // console.log(e.detail.value)
             this.setData({
                 userData: this.data.data.dataArray.filter(v => v.value.indexOf(e.detail.value) !== -1)
             })
