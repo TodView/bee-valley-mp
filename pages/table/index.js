@@ -17,6 +17,8 @@ Page({
       return '方框';
     } else if (taskType === 'collect') {
         return '采集';
+    } else if (taskType === 'attribute') {
+      return '属性';
     } else {
       return '未知';
     }
@@ -26,7 +28,7 @@ Page({
 
     // TODO Show only rect type task for now
     let records = [],
-      displayTypes = ['rect', 'collect'],
+      displayTypes = ['rect', 'collect', 'attribute'],
       // count = 1,
       groups = this.groupBy(responData, 'pack'),
       sortedKeys = Object.keys(groups).sort();
