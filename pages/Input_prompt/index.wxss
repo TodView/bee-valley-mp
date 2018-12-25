@@ -45,9 +45,10 @@
 
 .prompt_item{
     width: 100%;
-    height: 60rpx;
-    overflow: hidden;
+    margin-top: 15rpx;
+    /* height: 60rpx; */
+    overflow: auto;
     /* border-bottom: 1rpx solid black; */
-    text-align: center;
-    line-height: 60rpx;
+    /* text-align: center; */
+    /* line-height: 60rpx; */
 }
