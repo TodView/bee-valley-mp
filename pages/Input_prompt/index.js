@@ -18,9 +18,12 @@ Component({
 
   methods: {
     getFocus(e) {
-      this.setData({
-        userData: this.data.data.dataArray
-      })
+
+      if (this.data.data.dataArray) {
+        this.setData({
+          userData: this.data.data.dataArray
+        })
+      }
       this.triggerEvent('onFocus', { name: e.target.dataset.name })
 
     },
