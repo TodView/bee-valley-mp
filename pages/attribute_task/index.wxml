@@ -7,6 +7,8 @@
             style="width:100%"
             mode="widthFix"
             bindload="imageLoad"
+            bindtap="previewImage"
+            data-src="{{currentWork.src}}" 
         ></image>
     </view>
     <view class="showMessage">
