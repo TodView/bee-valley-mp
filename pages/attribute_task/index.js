@@ -1,4 +1,4 @@
-const beevalley = require("../../utils/beevalley.js");
+﻿const beevalley = require("../../utils/beevalley.js");
 Page({
   data: {
     modelHidden: false,
@@ -179,6 +179,8 @@ Page({
       })
     } else {
       if (work.attributes[this.index].dependency) {
+                work.attributes[this.index].dataArray = [];
+                work.attributes[this.index].indexArray = 0;
         this.index++;
         this.getSelect(work);
       } else {
