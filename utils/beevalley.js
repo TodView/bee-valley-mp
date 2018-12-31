@@ -89,7 +89,7 @@ function cancelReview(token, reviewIds, callback) {
 
 function login(code, callback, encryptedData, iv) {
   wx.request({
-    url: TODVIEW_API_BASE_URL + 'login/weixin_mp/' + code + '?' + ((encryptedData && iv) ? 'encryptedData=' + encodeURIComponent(encryptedData) + '&iv=' + encodeURIComponent(iv) : ''),
+    url: TODVIEW_API_BASE_URL + 'login/weixin_mp/' + code + '?app=bee-valley-mp&' + ((encryptedData && iv) ? 'encryptedData=' + encodeURIComponent(encryptedData) + '&iv=' + encodeURIComponent(iv) : ''),
     method: 'POST',
     success: wrap(callback)
   });

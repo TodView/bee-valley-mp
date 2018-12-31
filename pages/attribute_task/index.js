@@ -1,19 +1,19 @@
-﻿const beevalley = require("../../utils/beevalley.js");
+const beevalley = require("../../utils/beevalley.js");
 Page({
   data: {
     modelHidden: false,
     currentWork: {}
   },
 
-    previewImage(e){
-        let src = e.target.dataset.src;
+  previewImage(e) {
+    let src = e.target.dataset.src;
 
-        wx.previewImage({
-            current: src, // 当前显示图片的http链接  
-            urls: [src] // 需要预览的图片http链接列表  
-        })
+    wx.previewImage({
+      current: src, // 当前显示图片的http链接  
+      urls: [src] // 需要预览的图片http链接列表  
+    })
 
-    },
+  },
 
   showModel() {
     this.setData({
@@ -189,8 +189,8 @@ Page({
       })
     } else {
       if (work.attributes[this.index].dependency) {
-                work.attributes[this.index].dataArray = [];
-                work.attributes[this.index].indexArray = 0;
+        work.attributes[this.index].dataArray = [];
+        work.attributes[this.index].indexArray = 0;
         this.index++;
         this.getSelect(work);
       } else {
