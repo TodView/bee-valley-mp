@@ -18,7 +18,7 @@
     <image 
       wx:if="{{currentWork.src}}" 
       class="imglab-imgage" 
-      
+      mode="aspectFit"      
       src="{{currentWork.src}}" 
       bindload="imageLoad"
       data-imgId="{{currentWork.id}}"
