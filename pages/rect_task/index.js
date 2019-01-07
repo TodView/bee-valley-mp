@@ -38,14 +38,20 @@ Page({
 
   },
 
+  isValidRect: function (anchorX, anchorY, xOffset, yOffset, rectPosition, ratio) {
+    var relativeAnchorX = (anchorX - xOffset) / ratio;
+    var relativeAnchorY = (anchorY - yOffset) / ratio;
+    return relativeAnchorX > rectPosition.xMin && relativeAnchorX < rectPosition.xMax && relativeAnchorY > rectPosition.yMin && relativeAnchorY < rectPosition.yMax
+  },
+
   submitWork: function (e) {
     if (this.data.rectInitialized && this.data.currentWork) {
       let that = this;
       let item = this.data.currentWork;
       let { ratio } = this.data;
-      var relativeAnchorX = (item.anchorX - item.xOffset) / ratio;
-      var relativeAnchorY = (item.anchorY - item.yOffset) / ratio;
-      if (relativeAnchorX > this.data.rectPosition.xMin && relativeAnchorX < this.data.rectPosition.xMax && relativeAnchorY > this.data.rectPosition.yMin && relativeAnchorY < this.data.rectPosition.yMax) {
+      // var relativeAnchorX = (item.anchorX - item.xOffset) / ratio;
+      // var relativeAnchorY = (item.anchorY - item.yOffset) / ratio;
+      if (!item.anchorX || this.isValidRect(item.anchorX, item.anchorY, item.xOffset, item.yOffset, this.data.rectPosition, ratio)) {
         this.showLoading();
         // adjust for stroke width
         beevalley.submitWork(
@@ -143,8 +149,17 @@ Page({
 
   preprocessWork: function (work) {
 
-    let anchorX = Math.floor(work.prerequisites[0].result[work.meta.index].x);
-    let anchorY = Math.floor(work.prerequisites[0].result[work.meta.index].y);
+    work['xOffset'] = 0;
+    work['yOffset'] = 0;
+
+    let anchorX = 0;
+    let anchorY = 0;
+
+    if (work.prerequisites) {
+      anchorX = Math.floor(work.prerequisites[0].result[work.meta.index].x);
+      anchorY = Math.floor(work.prerequisites[0].result[work.meta.index].y);
+    }
+
     let { ratio } = this.data;
     let options = beevalley.calculateWorkarea(work.meta.imageWidth, work.meta.imageHeight, anchorX, anchorY, Math.round(this.data.imageAreaWidth * ratio), Math.round(this.data.imageAreaHeight * ratio));
     options['format'] = 'jpeg';
@@ -232,7 +247,7 @@ Page({
   },
 
   createAnchor: function (id) {
-    if (this.data.currentWork.id === id && !this.circle) {
+    if (this.data.currentWork.prerequisites && this.data.currentWork.id === id && !this.circle) {
       let { ratio } = this.data;
       var circle = new Shape('circle', {
         x: (this.data.currentWork.anchorX - this.data.currentWork.xOffset) / ratio,
@@ -244,8 +259,6 @@ Page({
       this.circle = circle;
     }
   },
-
-
 
   startBoxInfoRefresher: function () {
     let that = this;
@@ -421,7 +434,7 @@ Page({
         title: '不能继续缩小'
       })
     } else {
-      ratio -= 1;
+      ratio -= 0.5;
       this.setData({
         ratio: ratio
       }, () => {
@@ -449,12 +462,13 @@ Page({
 
   addRatio: function () {
     let { currentWork, ratio, imageAreaWidth, imageAreaHeight } = this.data;
-    if (imageAreaWidth * (ratio + 1) > currentWork.meta.imageWidth || imageAreaHeight * (ratio + 1) > currentWork.meta.imageHeight) {
+    let newRatio = ratio + 0.5;
+    if (imageAreaWidth * newRatio > currentWork.meta.imageWidth || imageAreaHeight * newRatio > currentWork.meta.imageHeight) {
       wx.showToast({
         title: '不能继续放大'
       })
     } else {
-      ratio += 1;
+      ratio = newRatio;
       this.setData({
         ratio: ratio
       }, () => {
@@ -483,9 +497,11 @@ Page({
 
   updateCircle: function () {
     let { ratio, currentWork } = this.data;
-    this.circle.updateOption({
-      x: (currentWork.anchorX - currentWork.xOffset) / ratio,
-      y: (currentWork.anchorY - currentWork.yOffset) / ratio,
-    })
+    if (currentWork.anchorX) {
+      this.circle.updateOption({
+        x: (currentWork.anchorX - currentWork.xOffset) / ratio,
+        y: (currentWork.anchorY - currentWork.yOffset) / ratio,
+      })
+    }
   }
 })

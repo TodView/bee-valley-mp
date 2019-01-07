@@ -54,8 +54,7 @@ function submitWork(token, workId, result, callback) {
     method: 'POST',
     data: {
       'id': workId,
-      'result': result,
-      'source': 'qts'
+      'result': result
     },
     header: {
       'content-type': 'application/json',
